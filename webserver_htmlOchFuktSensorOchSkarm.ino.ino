@@ -14,6 +14,15 @@ int output_value = 0;  // for storing the output of the sensor.
 int sensor_pin2 = A1; // Soil Sensor input at Analog PIN A1
 int output_value2 = 0;  // for storing the output of the sensor.
 
+// test vattenlampa
+int vattenLampa1 = 12;
+int vattenLampa2 = 13;
+
+int RGB3 = 9; // blå
+int RGB1 = 10;
+int RGB2 = 11; // röd
+
+
 // till wifi
 SoftwareSerial SerialWifi(6, 7);
 //char ssid[] = "NETGEAR";
@@ -22,17 +31,26 @@ SoftwareSerial SerialWifi(6, 7);
 //char ssid[] = "Lindas iPhone";
 //char pass[] = "Bucko5165";
 
-char ssid[] = "TN_24GHz_BA50C7";
-char pass[] = "LWUDRKJYDU";
+//char ssid[] = "TN_24GHz_BA50C7";
+//char pass[] = "LWUDRKJYDU";
 
-//char ssid[] = "STI Student";
-//char pass[] = "STI1924stu";
+const char ssid[] = "STI Student";
+const char pass[] = "STI1924stu";
 
 int status = WL_IDLE_STATUS;
 WiFiEspServer server(80);
 RingBuffer buf(8);
 
 void setup() {
+
+  pinMode(vattenLampa1, OUTPUT);
+  pinMode(vattenLampa2, OUTPUT);
+
+  pinMode(RGB1, OUTPUT);
+  pinMode(RGB2, OUTPUT); // RÖD
+  pinMode(RGB3, OUTPUT); // BLÅ
+
+  
 // till display
   // Setup size of LCD 20 characters and 2 lines
   lcd.begin(20,2);
@@ -77,10 +95,19 @@ void loop() {
     if (output_value < 60)
     {
     lcd.print(" BAD  ");
+      analogWrite(11, 255);
+      analogWrite(10, 0);
+      analogWrite(9, 0);
+  
+    digitalWrite(vattenLampa1, HIGH);
+    delay(5000);
+    digitalWrite(vattenLampa1, LOW);
+    
     }
     else
     {
-      lcd.print(" GOOD ");
+      lcd.print(" GOOD ");   
+      digitalWrite(vattenLampa1, LOW);        
     }
 
     lcd.setCursor(0,1);
@@ -91,12 +118,27 @@ void loop() {
     if (output_value2 < 60)
     {
     lcd.print(" BAD  ");
+
+     analogWrite(11, 255);
+     analogWrite(10, 0);
+     analogWrite(9, 0);
+      
+    digitalWrite(vattenLampa2, HIGH);
+    delay(5000);
+    digitalWrite(vattenLampa2, LOW);
     }
     else
     {
       lcd.print(" GOOD ");
+      digitalWrite(vattenLampa2, LOW);
     }
 
+    if(output_value2 > 60 && output_value > 60)
+    {
+      analogWrite(11, 0);
+      analogWrite(10, 255);
+      analogWrite(9, 0);
+    }
    
   WiFiEspClient client = server.available();
   if (client) {
@@ -115,85 +157,81 @@ void loop() {
           Serial.println("Sending response");
 
           // Send a standard HTTP response header
-          client.print(
+          client.print(F(
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/html\r\n"
             "Connection: close\r\n"
-            "\r\n");
-          client.print("<!DOCTYPE HTML>\r\n");
-          client.print("<html>\r\n");
-          client.print("<head>\r\n");
+            "\r\n"));
+          client.print(F("<!DOCTYPE HTML>\r\n"));
+          client.print(F("<html>\r\n"));
+          client.print(F("<head>\r\n"));
           
           
-          client.print("<link rel=\"stylesheet\" href=\"https://lindaljub.github.io/Css/arduino.css\">");
-            
-          //client.print("<link rel=\"stylesheet\" href=\"http://primat.se/services/css/arduino.css\">");
-          client.print("<link rel=\"shortcut icon\" href=\"about:blank\">");
-          client.print("<title>AServer</title>\r\n");
-          client.print("</head>\r\n");
-          client.print("<body>");
+          client.print(F("<link rel=\"stylesheet\" href=\"https://lindaljub.github.io/Css/arduino.css\">"));
+          client.print(F("<link rel=\"shortcut icon\" href=\"about:blank\">"));
+          client.print(F("<title>Lindino</title>\r\n"));
+          client.print(F("</head>\r\n"));
+          client.print(F("<body>"));
          
           // div container börjar
-          client.print("<div class=\"grid-container\">");
+          client.print(F("<div class=\"grid-container\">"));
 
-          client.print("<div class=\"header\">");
-          client.print("<h1>Lindas Arduino</h1>");
-          client.print("</div>");
+          client.print(F("<div class=\"header\">"));
+          client.print(F("<h1>Lindas Arduino</h1>"));
+          client.print(F("</div>"));
          
-          client.print("<div class=\"sida2\">");
-          client.print("<hr><h3>Plant ONE</h3><hr>");
-          client.print("<p><b>Status: </b>");
+          client.print(F("<div class=\"sida1\">"));
+          client.print(F("<hr><h3>Plant ONE</h3><hr>"));
+          client.print(F("<p><b>Status: </b>"));
           
-              client.print(" Moisture:  ");
+              client.print(F(" Moisture:  "));
               client.print(output_value); 
-              client.print("%");
-              client.println("</p>");
+              client.print(F("%"));
+              client.println(F("</p>"));
 
-              client.print("<p><b>Message: </b>");
+              client.print(F("<p><b>Message: </b>"));
                if(output_value < 60)
                  {
-                   client.print(" Give me water.</p>");
+                   client.print(F(" Give me water.</p>"));
                    delay(1000); 
                  }
                  
                  else
                   {
-                    client.print(" I feel fine!</p>");
+                    client.print(F(" I feel fine!</p>"));
                     delay(1000);
                   }
               
-          client.print("</div>");
+          client.print(F("</div>"));
 
-          client.print("<div class=\"sida1\">");
-          client.print("<hr><h3>Plant TWO</h3><hr>");
-          client.print("<p><b>status: </b>");
-              client.print(" Moisture:  ");
+          client.print(F("<div class=\"sida2\">"));
+          client.print(F("<hr><h3>Plant TWO</h3><hr>"));
+          client.print(F("<p><b>Status: </b>"));
+              client.print(F(" Moisture:  "));
               client.print(output_value2); 
-              client.print("%");
-              client.println("</p>");
+              client.print(F("%"));
+              client.println(F("</p>"));
               
-          client.print("<p><b>Message: </b>");
+          client.print(F("<p><b>Message: </b>"));
 
                 if(output_value2 < 60)
                  {
-                   client.print(" Give me water.</p>");
+                   client.print(F(" Give me water.</p>"));
                    delay(1000); 
                  }
                  
                  else
                   {
-                    client.print(" I feel fine!</p>");
+                    client.print(F(" I feel fine!</p>"));
                     delay(1000);
                   }
-          client.print("</div>");
+          client.print(F("</div>"));
 
-          client.print("<div class=\"planta1\"></div>");
-          client.print("<div class=\"planta2\"></div>"); 
+          client.print(F("<div class=\"planta1\"></div>"));
+          client.print(F("<div class=\"planta2\"></div>")); 
             
           // här slutar div container
-          client.print("</div>");
-          client.print("</body>");
-          client.print("</html>");
+          client.print(F("</div></body></html>"));
           break;
         }
         if (c == '\n') {
@@ -209,7 +247,7 @@ void loop() {
     delay(3000);
 
     client.stop();
-    Serial.println("Client disconnected");
+    Serial.println(F("Client disconnected"));
   }
 }
 
