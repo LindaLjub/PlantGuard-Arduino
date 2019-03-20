@@ -22,20 +22,24 @@ int RGB3 = 9; // blå
 int RGB1 = 10;
 int RGB2 = 11; // röd
 
+int count1 = 0;
+int count2 = 0;
+bool water = true;
+
 
 // till wifi
 SoftwareSerial SerialWifi(6, 7);
 //char ssid[] = "NETGEAR";
 //char pass[] = "aabbccddee";
 
-//char ssid[] = "Lindas iPhone";
-//char pass[] = "Bucko5165";
+char ssid[] = "Lindas iPhone";
+char pass[] = "Bucko5165";
 
 //char ssid[] = "TN_24GHz_BA50C7";
 //char pass[] = "LWUDRKJYDU";
 
-const char ssid[] = "STI Student";
-const char pass[] = "STI1924stu";
+//const char ssid[] = "STI Student";
+//const char pass[] = "STI1924stu";
 
 int status = WL_IDLE_STATUS;
 WiFiEspServer server(80);
@@ -92,17 +96,49 @@ void loop() {
     lcd.print(output_value);
     lcd.print("%");
 
+    // om det är för torrt, lampan lyser rött, det står BAD.
+    // loopen räknar ned, sedan vattnas det om loopen inte avbryts
     if (output_value < 60)
     {
+    water = true;
     lcd.print(" BAD  ");
       analogWrite(11, 255);
       analogWrite(10, 0);
       analogWrite(9, 0);
-  
-    digitalWrite(vattenLampa1, HIGH);
-    delay(5000);
-    digitalWrite(vattenLampa1, LOW);
-    
+
+    lcd.clear();
+          for(int i = 15; i > 0; i--)
+          {
+            lcd.print("       ");
+            lcd.print(i);
+            lcd.print("  ");
+            delay(1000);
+      
+             output_value = analogRead(sensor_pin); // hämtar in värde från sensor
+             output_value = map(output_value,1080,130,0,100); // we will map the output values to 0-100, because the moisture is measured in percentage.
+             delay(200);
+              
+                    // stoppa vattningen
+                    if(output_value > 60)
+                    {
+                      water = false;
+                      i = 0;
+                    }
+             lcd.clear();
+          }
+            
+                  // vattna bara om loopen inte avbröts
+                  if(water == true)
+                  {
+                    digitalWrite(vattenLampa1, HIGH);
+                    delay(1000);
+                    lcd.clear();
+                    lcd.print("WATERING PLANT 1");
+                    count1++;
+                    delay(5000);
+                    digitalWrite(vattenLampa1, LOW);
+                  }
+                
     }
     else
     {
@@ -117,15 +153,43 @@ void loop() {
 
     if (output_value2 < 60)
     {
+    water = true;
     lcd.print(" BAD  ");
 
      analogWrite(11, 255);
      analogWrite(10, 0);
      analogWrite(9, 0);
       
-    digitalWrite(vattenLampa2, HIGH);
-    delay(5000);
-    digitalWrite(vattenLampa2, LOW);
+    lcd.clear();
+    for(int i = 15; i > 0; i--)
+    {
+         lcd.print("       ");
+         lcd.print(i);
+         lcd.print("  ");
+         delay(1000);
+            
+             output_value2 = analogRead(sensor_pin2); // hämtar in värde från sensor
+             output_value2 = map(output_value2,1080,130,0,100); // we will map the output values to 0-100, because the moisture is measured in percentage.
+             delay(200);
+              
+                    // stoppa vattningen
+                    if(output_value2 > 60)
+                    {
+                      water = false;
+                      i = 0;
+                    }
+             lcd.clear();
+    }
+
+                      // vattna bara om loopen inte avbröts
+                  if(water == true)
+                  {
+                    digitalWrite(vattenLampa2, HIGH);
+                    lcd.print("WATERING PLANT 2");
+                    count2++;
+                    delay(5000);
+                    digitalWrite(vattenLampa2, LOW);
+                  }
     }
     else
     {
@@ -182,23 +246,28 @@ void loop() {
          
           client.print(F("<div class=\"sida1\">"));
           client.print(F("<hr><h3>Plant ONE</h3><hr>"));
-          client.print(F("<p><b>Status: </b>"));
+          client.print(F("<blockquote><blockquote><b>Status: </b>"));
           
               client.print(F(" Moisture:  "));
               client.print(output_value); 
               client.print(F("%"));
-              client.println(F("</p>"));
+              client.print(F("<br>Watered "));
+              client.println(count1);
+              client.print(F(" times since Arduino was started."));
+              client.println(F("</blockquote></blockquote>"));
 
-              client.print(F("<p><b>Message: </b>"));
+              client.print(F("<blockquote><blockquote><b>Message: </b>"));
                if(output_value < 60)
                  {
-                   client.print(F(" Give me water.</p>"));
+                   client.print(F(" I dont feel so good!"));
+                   client.print(F("<br>Give me water.</blockquote></blockquote>"));
                    delay(1000); 
                  }
                  
                  else
                   {
-                    client.print(F(" I feel fine!</p>"));
+                    client.print(F(" I feel fine!"));
+                    client.print(F("<br>No water needed.</blockquote></blockquote>"));
                     delay(1000);
                   }
               
@@ -206,23 +275,28 @@ void loop() {
 
           client.print(F("<div class=\"sida2\">"));
           client.print(F("<hr><h3>Plant TWO</h3><hr>"));
-          client.print(F("<p><b>Status: </b>"));
+          client.print(F("<blockquote><blockquote><b>Status: </b>"));
               client.print(F(" Moisture:  "));
               client.print(output_value2); 
               client.print(F("%"));
-              client.println(F("</p>"));
-              
-          client.print(F("<p><b>Message: </b>"));
+              client.print(F("<br>Watered "));
+              client.println(count2);
+              client.print(F(" times since Arduino was started."));
+              client.println(F("</blockquote></blockquote>"));
+             
+          client.print(F("<blockquote><blockquote><b>Message: </b>"));
 
                 if(output_value2 < 60)
                  {
-                   client.print(F(" Give me water.</p>"));
+                   client.print(F(" I dont feel so good!"));
+                   client.print(F("<br>Give me water.</blockquote></blockquote>"));
                    delay(1000); 
                  }
                  
                  else
                   {
-                    client.print(F(" I feel fine!</p>"));
+                    client.print(F(" I feel fine!"));
+                    client.print(F("<br>No water needed.</blockquote></blockquote>"));
                     delay(1000);
                   }
           client.print(F("</div>"));
@@ -242,7 +316,6 @@ void loop() {
         }
       }
     }
-
 
     delay(3000);
 
