@@ -60,6 +60,9 @@ void setup() {
   pinMode(RGB2, OUTPUT); // RÖD
   pinMode(RGB3, OUTPUT); // BLÅ
 
+  // till vattenventil
+  pinMode(2, OUTPUT);
+
 
   // Till display
   lcd.begin(20,2);   // Setup size of LCD 20 characters and 2 lines.
@@ -147,9 +150,16 @@ void loop() {
             {
                 //den blå vattenlampan lyser och displayen visar att det vattnas.
                 digitalWrite(vattenLampa1, HIGH); 
-                delay(1000);
                 lcd.clear();
                 lcd.print("WATERING PLANT 1");
+                
+                // vattenventil
+                   digitalWrite(2 , HIGH);
+                   Serial.println("open");
+                   delay(10000);
+                   digitalWrite(2, LOW);
+   
+
                 count1++;   // räknar hur många gånger plantan har vattnat denna planta sen arduinon startade.
                 delay(5000);
                 digitalWrite(vattenLampa1, LOW);
