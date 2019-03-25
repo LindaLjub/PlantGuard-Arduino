@@ -34,17 +34,10 @@ bool water = true;
 
 // Till wifi
 SoftwareSerial SerialWifi(6, 7);
-//char ssid[] = "NETGEAR";
-//char pass[] = "aabbccddee";
 
-char ssid[] = "Lindas iPhone";
-char pass[] = "Bucko5165";
-
-//char ssid[] = "TN_24GHz_BA50C7";
-//char pass[] = "LWUDRKJYDU";
-
-//const char ssid[] = "STI Student";
-//const char pass[] = "STI1924stu";
+// DITT EGET WIFI & KOD
+const char ssid[] = "XXXXX";
+const char pass[] = "XXXXX";
 
 int status = WL_IDLE_STATUS;
 WiFiEspServer server(80);
@@ -153,7 +146,7 @@ void loop() {
                 lcd.clear();
                 lcd.print("WATERING PLANT 1");
                 
-                // vattenventil
+                // vattenventil, öppen 10 sek sedan stäng.
                    digitalWrite(2 , HIGH);
                    Serial.println("open");
                    delay(10000);
